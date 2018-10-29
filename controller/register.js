@@ -8,11 +8,8 @@ router.post('/register',async (req,res,next) => {
     const { username, email, password,desc } = req.body;
     console.log(username, email, password);
 
-    const avatarNumber = Math.ceil(Math.random()*8)
-    const avatar = `http://pbl.yaojunrong.com/avatar${avatarNumber}.jpg`
-
     if (password && password.length>=5) {
-      const data = await userModel.create({ username, email, password,avatar,desc })
+      const data = await userModel.create({ username, email, password,desc })
       res.json({
         code: 200,
         data,
@@ -35,5 +32,7 @@ router.post('/register',async (req,res,next) => {
     })
   }
 })
+
+
 
 module.exports = router;

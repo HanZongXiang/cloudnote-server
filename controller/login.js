@@ -16,6 +16,7 @@ router.post('/login',async (req,res) => {
       if (password && password == userData.password){
         req.session.user = userData;
         let userMsg = {
+          id: userData._id,
           username: userData.username,
           email: userData.email,
           avatar:userData.avatar,

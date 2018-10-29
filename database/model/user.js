@@ -11,7 +11,7 @@ const user = new mongoose.Schema({
   password:String,
   avatar: {
     type:String,
-    default:'http://pbl.yaojunrong.com/avatar1.jpg'
+    default:'http://img2.imgtn.bdimg.com/it/u=1113213886,4225820012&fm=26&gp=0.jpg'
   }
 },
 {

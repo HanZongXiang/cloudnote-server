@@ -18,7 +18,7 @@ const article = new mongoose.Schema({
   },
   readnums: {
     type:Number,
-    default:666
+    default:0
   },
   replynums: {
     type:Number,

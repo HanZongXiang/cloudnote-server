@@ -5,7 +5,6 @@ const articleModel = require('../database/model/article')
 router.post('/article',async (req,res,next) => {
   try {
     if (req.session.user) {
-      // console.log(req.session.user);
       const { content, contentText, title, category } = req.body
 
       const data = await articleModel.create({
@@ -37,7 +36,7 @@ router.post('/article',async (req,res,next) => {
 
 //获取文章接口
 router.get('/article',(req,res) => {
-  let {pn=1,size=10} = req.query
+  let {pn=1,size=5} = req.query
   pn = parseInt(pn)
   size = parseInt(size)
 
@@ -84,77 +83,41 @@ router.get('/article/:id',(req,res) => {
   })
 })
 
-router.get('/search',(req,res) => {
-  let {pn=1,size=10,title} = req.query
-  let reg= new RegExp(title)
-
-  articleModel.aggregate([
-    {
-      $match: {
-        $or: [
-          { title: reg }
-        ]
+router.patch('/article/:_id',async (req,res,next) => {
+  try {
+    const { content, contentText, title, category } = req.body
+    const {_id} = req.params
+    const data = await articleModel.findById({_id})
+    const updateData = await data.updateOne({
+      $set: {
+        content,
+        contentText, 
+        title, 
+        category
       }
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "author",
-        foreignField: "_id",
-        as: "author"
-      }
-    },
-    {
-      $project: {
-        readnums: 1,
-        replynums: 1,
-        title: 1,
-        content: 1,
-        contentText: 1,
-        author: 1,
-        author: {
-          avatar: 1,
-          username: 1,
-          _id:1
-        },
-        createdAt: 1,
-        updatedAt: 1
-      }
-    },
-    {
-      $sort: {
-        _id: -1
-      }
-    },
-    {
-      $limit: size
-    },
-    {
-      $skip: (pn - 1) * size
-    }
-  ])
-  // articleModel.find({$match: {
-  //   $or: [
-  //     {title:reg},
-  //     {content:reg}
-  //   ]
-  // }})
-  // .skip((pn-1)*size)
-  // .limit(size)
-  // .sort({_id:-1})
-  // .populate({
-  //   path:'author',
-  //   select:'-password -email'
-  // })
-  // .populate({
-  //   path:'category'
-  // })
-  .then(data => {
+    })
     res.json({
-      code:200,
+      code: 200,
+      msg: '笔记修改成功',
+      data: updateData
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.delete('/article/:_id',async (req,res,next) => {
+  try {
+    const {_id} = req.params
+    const data = await articleModel.deleteOne({_id})
+    res.json({
+      code: 200,
+      msg: '删除笔记成功',
       data
     })
-  })
+  } catch (error) {
+    next(error)
+  }
 })
 
 module.exports = router
