@@ -35,52 +35,54 @@ router.post('/article',async (req,res,next) => {
 })
 
 //获取文章接口
-router.get('/article',(req,res) => {
-  let {pn=1,size=5} = req.query
-  pn = parseInt(pn)
+router.get('/article',async (req,res) => {
+  let {page=1,size=5} = req.query
+  page = parseInt(page)
   size = parseInt(size)
+  let total = await articleModel.count()
 
   articleModel.find()
-              .skip((pn-1)*size)
-              .limit(size)
-              .sort({_id:-1})
-              .populate({
-                path:'author',
-                select: '-password -email'
-              })
-              .populate({
-                path:'category'
-              })
-              .then(data => {
-                res.json({
-                  code:200,
-                  data
-                })
-              })
-            })
-
-//根据文章id获取文章
-router.get('/article/:id',(req,res) => {
-  const {id} = req.params
-  articleModel.findById(id)
-              .populate({
-                path:'author',
-                select:'-password -email'
-              })
-              .populate({
-                path:'category'
-              })
-              .then(data => {
-                res.json({
-                  code:200,
-                  data
-                })
-  }).catch(err => {
-    res.json({
-      code:400,
-      err
+    .skip((page-1)*size)
+    .limit(size)
+    .sort({_id:-1})
+    .populate({
+      path:'author',
+      select: '-password -email'
+    })
+    .populate({
+      path:'category'
+    })
+    .then(data => {
+      res.json({
+        code:200,
+        msg: '请求成功',
+        data,
+        total
+      })
     })
   })
+
+//根据文章id获取文章
+router.get('/article/:id',async (req,res) => {
+  try {
+    const {id} = req.params
+    const data = await articleModel.findById({ _id: id })
+      .populate({
+        path:'author',
+        select:'-password -email'
+      })
+      .populate({
+        path:'category'
+      })
+    await articleModel.updateOne({ _id: id }, {$inc: {readnums: 1}})
+      res.json({
+        code:200,
+        msg: '单条笔记获取成功',
+        data
+      })
+  } catch (error) {
+    next(error)
+  }
 })
 
 router.patch('/article/:_id',async (req,res,next) => {

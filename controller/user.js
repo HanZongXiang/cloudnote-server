@@ -1,9 +1,12 @@
 const { Router } = require('express');
 const router = Router();
+const mongoose = require('mongoose')
 const userModel = require('../database/model/user');
+const articleModel = require('../database/model/article')
 
 router.get('/user', async (req, res, next) => {
   try {
+    let total = await userModel.count()
     let { page = 1, page_size = 10 } = req.query
     page = parseInt(page)
     page_size = parseInt(page_size)
@@ -14,7 +17,9 @@ router.get('/user', async (req, res, next) => {
 
       res.json({
         code: 200,
-        data
+        msg: '信息获取成功',
+        data,
+        total
       })
   } catch (error) {
     next(error)
@@ -28,7 +33,7 @@ router.get('/user/:id', async (req, res, next) => {
 
     res.json({
       code: 200,
-      msg: '管理员信息获取成功',
+      msg: '用户信息获取成功',
       data
     })
   } catch (error) {
@@ -39,12 +44,22 @@ router.get('/user/:id', async (req, res, next) => {
 router.delete('/user/:_id', async (req, res, next) => {
   try {
     const { _id } = req.params
+    const id = mongoose.Types.ObjectId(_id)
     const data = await userModel.deleteOne({ _id })
-    res.json({
-      code: 200,
-      msg: '删除管理员成功',
-      data
-    })
+    if (data.n) {
+      await articleModel.deleteMany({author: id})
+      res.json({
+        code: 200,
+        msg: '删除管理员成功',
+        data
+      })
+    } else {
+      res.json({
+        code: 400,
+        msg: '该用户不存在'
+      })
+    }
+    
   } catch (error) {
     next(error)
   }
@@ -72,7 +87,7 @@ router.patch('/user/:id', async (req, res, next) => {
     })
     res.json({
       code: 200,
-      msg: '管理员信息修改成功',
+      msg: '用户信息修改成功',
       data: updateData
     })
   } catch (error) {

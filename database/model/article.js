@@ -16,13 +16,19 @@ const article = new mongoose.Schema({
     type:Schema.Types.ObjectId,
     ref:'category'
   },
+  comment: [
+    {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'comment'
+    }
+  ],
   readnums: {
     type:Number,
     default:0
   },
   replynums: {
     type:Number,
-    default:998
+    default:0
   }
 },
 {
