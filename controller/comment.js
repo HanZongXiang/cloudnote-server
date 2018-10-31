@@ -70,4 +70,22 @@ router.get('/comment/:articleId',async (req,res,next) => {
   }
 })
 
+router.delete('/comment/:id/:commentId', async (req,res,next) => {
+  try {
+    const articleId = req.params.id
+    const commentId = req.params.commentId
+    const data = await commentModel.find({article: articleId})
+      .deleteOne({_id: commentId})
+      if (data.n) {
+        res.json({
+          code: 200,
+          data,
+          msg: '评论删除成功'
+        })
+      }
+  } catch (error) {
+    next(error)
+  }
+})
+
 module.exports = router
