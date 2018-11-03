@@ -85,6 +85,27 @@ router.get('/article/:id',async (req,res) => {
   }
 })
 
+router.get('/article/category/:typeId',async (req,res,next) => {
+  try {
+    const {typeId} = req.params
+    const data = await articleModel.find({category: typeId})
+      .populate({
+        path: 'author',
+        select: '-password -email'
+      })
+      .populate({
+        path: 'category'
+      })
+    res.json({
+      code: 200,
+      msg: '分类获取笔记成功',
+      data
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.patch('/article/:_id',async (req,res,next) => {
   try {
     const { content, contentText, title, category } = req.body
